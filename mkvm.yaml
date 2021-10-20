@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: adding ssh key to powervc
+    os_keypair:
+      cloud: wasXX
+      state: present
+      name: ansible_key_wasXX
+      public_key_file:  /home/wasXX/.ssh/id_rsa.pub
+
+  - name: Create a new VM instance
+    os_server:
+      cloud: wasXX
+      timeout: 900
+      state: present
+      name: myvmname
+      image: AIX72_40GB
+      flavor: was
+      key_name: ansible_key_wasXX
+      availability_zone: "Default Group"
+      nics:
+        - net-name: VL344
+    register: vm
+  
+  - name: Showing newly assigned IP address 
+    debug:
+      msg: the IP address is  "{{ vm.server.public_v4 }}"
+  - name: Waits for SSH port 22 to open
+    wait_for:
+      host: "{{ vm.server.public_v4 }}"
+      delay: 5
+      port: 22
+      sleep: 10
+      timeout: 900
