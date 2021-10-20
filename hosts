@@ -1,3 +1,6 @@
 was: 
   hosts: 
     10.3.44.XX:
+all:
+  hosts:
+    10.3.44.111:
