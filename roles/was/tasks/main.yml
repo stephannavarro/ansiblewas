@@ -1,0 +1,79 @@
+- name: setting DNS
+  template:
+    src: templates/resolv.conf.j2
+    dest: /etc/resolv.conf
+    mode : '0664'
+    owner: root
+    group: system
+  tags: DNS
+
+- name: Changes /tmp to 6G size
+  aix_filesystem:
+    filesystem: /tmp
+    size: 6G
+    state: present
+- name: Changes /var to 2G size
+  aix_filesystem:
+    filesystem: /var
+    size: 2G
+    state: present
+- name: Creating staging directory
+  file:
+    path: /tmp/im
+    state: directory
+- name: Changes /opt to 4G size
+  aix_filesystem:
+    filesystem: /opt
+    size: 4G
+    state: present
+- name: increase /usr of 3G
+  aix_filesystem:
+    filesystem: /usr
+    size: 6G
+    state: present
+  tags: template
+- name : installing zip, unzip, GNUtar using yum
+  yum:
+    name: unzip, zip, tar-1.32-1
+    #name: unzip, zip, tar-1.32-1, sudo, rlwrap
+    state: latest
+  ignore_errors: yes
+  tags:
+    - yum
+- name: copying IM source files
+  unarchive:
+    src: /files/aix/websphere/InstallationManager/1.8.9.4/aix.gtk.ppc_1.8.9004.20190423_2015.zip
+    dest: /tmp/im
+    creates: userinstc.ini
+  tags:
+    - copyfiles
+- name: installing installation manager
+  shell: /tmp/im/installc -log /tmp/im.lof -acceptLicense
+  tags: installim
+- name: uploading was installation response file
+  template:
+    src: templates/was90501.sdk8035.xml
+    dest: /tmp/was90501.sdk8035.xml
+  tags: template
+- name: Creating wasrepo directory
+  file:
+    path: "{{was_repo}}"
+    state: directory
+- name: copying binaries to wasrepo
+  copy:
+    src: "{{item}}"
+    dest: "{{was_repo}}"
+  loop:
+    - "{{was_90501_source_dir}}{{was_90501_file}}"
+    - "{{sdk_8035_source_dir}}{{sdk_8035_file}}"
+  #tags: template
+- name: installing was using Installation manager
+  shell: /opt/IBM/InstallationManager/eclipse/tools/imcl input /tmp/was90501.sdk8035.xml -acceptlicense
+  tags: template
+- name: creating was profile
+  shell: /usr/IBM/WebSphere/AppServer/bin/manageprofiles.sh -create -templatePath /usr/IBM/WebSphere/AppServer/profileTemplates/default
+  tags: template
+- name: starting application server
+  shell: /usr/IBM/WebSphere/AppServer/profiles/AppSrv01/bin/startServer.sh server1
+  tags: template
+

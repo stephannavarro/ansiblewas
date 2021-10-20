@@ -1,0 +1,6 @@
+was_repo: /tmp/wasrepo/
+was_90501_file: was.repo.90501.base.zip
+sdk_8035_file: sdk.repo.8035.java8.aix.zip
+was_90501_source_dir: /files/aix/websphere/was/was9051/
+sdk_8035_source_dir: /files/aix/websphere/sdk/sdk8035/
+

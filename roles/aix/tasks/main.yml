@@ -1,0 +1,52 @@
+- name: modifying root capabilities
+  ibm.power_aix.user:
+    state: modify
+    name: root
+    attributes:
+      fsize: -1
+      cpu: -1
+      data: -1
+      stack: -1
+      core: -1
+      rss: -1
+      nofiles: -1
+      fsize_hard: -1
+
+
+- name: Changes /tmp to 6G size
+  aix_filesystem:
+    filesystem: /tmp
+    size: 6G
+    state: present
+
+
+- name: Changes /var to 2G size
+  aix_filesystem:
+    filesystem: /var
+    size: 2G
+    state: present
+
+
+- name: Changes /opt to 4G size
+  aix_filesystem:
+    filesystem: /opt
+    size: 4G
+    state: present
+
+
+- name: Changes  /usr to 6G
+  aix_filesystem:
+    filesystem: /usr
+    size: 6G
+    state: present
+
+
+- name : installing zip, unzip, GNUtar using yum
+  yum:
+    name: unzip, zip, tar-1.32-1
+    state: latest
+
+- name: Creating staging directory
+  file:
+    path: /tmp/im
+    state: directory

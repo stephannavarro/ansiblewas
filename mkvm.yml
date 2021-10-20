@@ -1,0 +1,31 @@
+---
+- hosts: localhost
+  gather_facts: false
+  user: steph
+  tasks: 
+  - name: Authenticate to the cloud and retrieve the service catalog
+    os_auth:
+      cloud: was02
+  - name: adding ssh key to powervc
+    os_keypair:
+      cloud: was02
+      state: present
+      name: ansible_key_was02
+      public_key_file: /home/steph/.ssh/id_rsa.pub
+
+  - name: Create a new VM instance
+    os_server:
+      cloud: was02
+      timeout: 900
+      state: present
+      name: was02vm
+      image: AIX72_40GB
+      flavor: was
+      key_name: ansible_key_was02 
+      availability_zone: "Default Group"
+      nics:
+        - net-name: VL360
+    register: vm
+
+
+

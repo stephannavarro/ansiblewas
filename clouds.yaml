@@ -1,0 +1,9 @@
+clouds:
+  myname:
+    auth:
+      auth_url: https://myhost:5000/v3/
+      domain_name: Default
+      username: 
+      password: 
+      project_name: project
+    verify: false
