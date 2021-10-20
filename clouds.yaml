@@ -1,9 +1,9 @@
 clouds:
-  was02:
+  yourcloudname:
     auth:
-      auth_url: https://10.3.44.10:5000/v3/
+      auth_url: https://yourhostorip:5000/v3/
       domain_name: Default
-      username: was02
-      password: ansiblewas
-      project_name: snproject
+      username: youruser
+      password: yourpassword
+      project_name: youproject
     verify: false
