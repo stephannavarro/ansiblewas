@@ -2,7 +2,6 @@
 - hosts: was
   gather_facts: true
   user: root
-  #serial: 10
   collections:
     - ibm.power_aix
 
