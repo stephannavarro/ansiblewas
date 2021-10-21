@@ -18,4 +18,4 @@ The objectives of this lab are
 
 Below is an architecture diagram describing the environment:  
   
-  ![alt text](https://github.com/stephannavarro/ansiblewas/img/Slide3.JPG?raw=true)
+  ![alt text](https://github.com/stephannavarro/ansiblewas/blob/main/img/Slide3.JPG)
