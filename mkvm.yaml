@@ -14,7 +14,7 @@
       cloud: wasXX
       timeout: 900
       state: present
-      name: myvmname
+      name: 
       image: AIX72_40GB
       flavor: was
       key_name: ansible_key_wasXX
