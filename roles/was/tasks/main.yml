@@ -1,3 +1,8 @@
+- name: Creating staging directory
+  file:
+    path: /tmp/im
+    state: directory
+
 - name: copying IM source files
   unarchive:
     src: /files/aix/websphere/InstallationManager/1.8.9.4/aix.gtk.ppc_1.8.9004.20190423_2015.zip
