@@ -5,5 +5,5 @@ clouds:
       domain_name: Default
       username: youruser
       password: yourpassword
-      project_name: snproject
+      project_name: ibm-default
     verify: false

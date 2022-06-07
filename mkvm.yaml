@@ -4,23 +4,22 @@
   tasks:
   - name: adding ssh key to powervc
     os_keypair:
-      cloud: wasXX
+      cloud: hcloudXX
       state: present
-      name: ansible_key_wasXX
-      public_key_file:  /home/wasXX/.ssh/id_rsa.pub
+      name: ansible_key_hcloudXX
+      public_key_file:  /home/hcloudXX/.ssh/id_rsa.pub
 
   - name: Create a new VM instance
     os_server:
-      cloud: wasXX
+      cloud: hcloudXX
       timeout: 900
       state: present
       name: 
-      image: AIX72_40GB
+      image: AIX721-7022-40GB
       flavor: was
-      key_name: ansible_key_wasXX
-      availability_zone: "Default Group"
+      key_name: ansible_key_hcloudXX
       nics:
-        - net-name: VL344
+        - net-name: VL321
     register: vm
   
   - name: Showing newly assigned IP address 
