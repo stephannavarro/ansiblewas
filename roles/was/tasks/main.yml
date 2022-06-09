@@ -6,7 +6,7 @@
     dest: '/etc/hosts'
     regexp: '^{{ ansible_default_ipv4.address }}.*'
     insertafter: '^127.0.0.1 .*localhost*'
-    line: "{{ ansible_default_ipv4.address }} {{ real_hostname }}"
+    line: "{{ ansible_default_ipv4.address }} {{ ansible_facts['nodename'] }}"
     #line: "{{ ansible_default_ipv4.address }} {{ hostname_line }}"
     state: present
     backup: True
