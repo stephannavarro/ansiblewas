@@ -11,7 +11,8 @@ The second part of the lab is about automation on the AIX operating system:
 -	Installing Websphere Application Server
 
 1.1.	Objectives 
-The objectives of this lab are 
+The objectives of this lab are : 
+
 •	Deploy an AIX  partition,  
 •	Perfom operation on filesystems 
 •	Install and configure Websphere Application server
