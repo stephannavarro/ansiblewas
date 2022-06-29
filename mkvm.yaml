@@ -15,7 +15,7 @@
       timeout: 900
       state: present
       name: 
-      image: AIX721_7022_40GB
+      image: AIX721_7022_300G_DEMO
       flavor: was
       key_name: ansible_key_idXXXXX
       nics:
