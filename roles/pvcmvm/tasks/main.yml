@@ -7,6 +7,13 @@
     msg: "{{vm_instance_number}}"
   when: vm_instance_number is defined
 
+- name: adding ssh key to powervc
+  os_keypair:
+    cloud: idXXXXX
+    state: present
+    name: ansible_key_idXXXXX
+    public_key_file:  /home/idXXXXX/.ssh/id_rsa.pub
+
 - name: one or more VM
   set_fact:
     newhostnames: 
