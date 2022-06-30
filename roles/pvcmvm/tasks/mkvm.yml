@@ -1,0 +1,53 @@
+- name: Create a PowerVC Virtual Machine
+  hosts: localhost
+  vars_files:
+    # User defined variables for infrastructure
+    - vars/osvars.yml
+  environment:
+  #script to run as source powervcrc to be able to run nova command ##
+    OS_USERNAME: root
+    OS_PASSWORD: powerlinux
+    OS_AUTH_URL: https://10.3.44.10:5000/v3/
+    OS_IDENTITY_API_VERSION: 3
+    OS_CACERT: /var/lib/awx/projects/pvc_ansible/ossia/powervc.crt
+    OS_REGION_NAME: RegionOne
+    OS_USER_DOMAIN_NAME: Default 
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_PROJECT_NAME: Ansible
+    OS_TENANT_NAME: ibm-default
+  tasks:
+    - name: creating data volumes
+      os_volume:
+        state: present
+        size: "{{ disk_list.sizeGB }}"
+        display_name: "{{ item }}"
+      with_sequence: start=1 end={{disk_list.number}} format={{disk_list.prefix}}%04x
+    - name: Create a new VM instance
+      os_server:
+        state: present
+        name: "{{ hostname }}"
+        image: "{{ pvc_image_name }}"
+        flavor: "{{ pvc_flavor }}"
+        key_name: ste-ansible-ssh-key
+        nics:
+          - net-name: VL354-115-119
+        meta:
+          hostname: "{{ hostname }}"
+          group: ansible-vms
+      register: vm
+
+    - name: Print VM's public IP address
+      debug:
+        var: vm #vm.openstack.public_v4
+
+    - name: Waits for SSH port 22 to open
+      wait_for:
+        host: "{{ vm.openstack.public_v4 }}"
+        port: 22
+      # Creates a new volume
+    - name: attach volume to host
+      os_server_volume:
+        state: present
+        server: "{{hostname}}"
+        volume: "{{ item }}"
+      with_sequence: start=1 end={{disk_list.number}} format={{disk_list.prefix}}%04x

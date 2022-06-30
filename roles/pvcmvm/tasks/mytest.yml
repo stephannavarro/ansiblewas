@@ -1,0 +1,32 @@
+- name: Create a PowerVC Virtual Machine
+  hosts: localhost
+  vars_files:
+    # User defined variables for infrastructure
+    - vars/osvars.yml
+  tasks:
+    - name: Retrieve list of all AIX images
+      os_image_info:
+        properties:
+          os_distro: aix  # remove this line to list all images
+      register: result
+
+    - name: Print image list
+      set_fact:
+        aiximages: "{{ result | json_query('openstack_image[*].
+                {name: name, id: id, os_distro: os_distro, status: status,
+              project: location.project.name}') }}"
+    - set_fact:
+        images_id: "{{ aiximages 
+            | selectattr('name', 'match', 'AIX721-7022' ) 
+            | map(attribute='id') 
+            | list 
+            | first 
+            | default('NOT_FOUND') }}"
+    - debug:
+        msg: "The AIX image id  is {{ images_id }}"
+    #- name: "Display all ports from cluster1"
+    - debug:
+        var: item
+      loop: "{{ result | json_query(image_query) }}"
+      vars:
+        image_query: "openstack_image[?name=='{{pvc_image_name}}'].id"

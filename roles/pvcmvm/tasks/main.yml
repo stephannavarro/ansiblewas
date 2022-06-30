@@ -1,0 +1,87 @@
+#- name: Create an SSH Key Pair
+#os_keypair:
+#state: present
+#name: tower-ansible-ssh-key-45
+#public_key_file: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+- name : showing cloud config file
+  debug:
+    msg: "{{config_file}}"
+- stat:
+    path: "{{ config_file }}"
+  register: st
+- include_vars: "{{ config_file }}"
+  when: st.stat.exists and st.stat.isreg
+  #- name: "Print out clouds variable"
+  #debug:
+  #msg: "{{ clouds|default('No clouds found') }}"
+- name: Authenticate to the cloud and retrieve the service catalog
+  os_auth:
+    cloud: devstack
+
+- name: debug showing vm_instance_number
+  debug:
+    msg: "{{vm_instance_number}}"
+  when: vm_instance_number is defined
+
+- name: one or more VM
+  set_fact:
+    newhostnames: 
+      - { vmname: "{{ vmname }}" , number: "{{ disknumber }}" ,  sizeGB: "{{ size_GB }}" , prefix: "{{ diskprefix }}" }
+  when:  vmname  != '' and vm_instance_number is undefined 
+- name: creating one or more VMs
+  include: mkmvm.yml
+  loop:   "{{ hostnames |flatten(levels=1) }}"
+  loop_control:
+    extended: yes
+    loop_var: vmdesc
+  when:  vmname  == '' and  vm_instance_number is undefined  
+      #when : vmname  == ''
+- name: creating one or more VMs with input parameters
+  include: mkmvm.yml
+  loop:   "{{ newhostnames |flatten(levels=1) }}"
+  loop_control:
+    extended: yes
+    loop_var: vmdesc
+  when:  vmname  != '' and  vm_instance_number is undefined  
+
+- name: creating multiples VM
+  include: mkmultivmmultidisk.yml
+  with_sequence: start=1 end={{vm_instance_number}} format={{vmname}}_%04x
+  when: vm_instance_number is defined and  disk_number is defined and disk_number != 0 
+
+
+- name: creating multiples VM
+  include: mkmultivmsingledisk.yml
+  with_sequence: start=1 end={{vm_instance_number}} format={{vmname}}_%04x
+  when: vm_instance_number is defined and  disk_number is not defined #and disk_number == 0 
+
+- name: Print ip_adresses
+  debug:
+    msg: The Ip Address is "{{ ip_adresses |flatten(levels=1) }}"
+  when:  vmname  != '' and vm_instance_number is undefined 
+  #register : hostip
+  #
+- name: Waits for SSH port 22 to open
+  wait_for:
+    #host: "{{ vm.openstack.public_v4 }}"
+    host: "{{ item }}"
+    delay: 5
+    port: 22
+    sleep: 10
+    timeout: 300
+  loop:   "{{ ip_adresses |flatten(levels=1) }}"
+      #when:  vmname  != '' and ( vm_instance_number is undefined ) 
+    
+  
+  
+      #with_sequence: start=1 end={{vm_instance_number}} format={{vmname}}%04x
+    
+
+      #- { vmname: "{{ item }}" , number: "{{ disknumber }}" ,  sizeGB: "{{ size_GB }}" , prefix: "{{ item }}" }
+      #debug:
+      #msg: "{{item}}"
+      #with_sequence: start=1 end={{vm_instance_number}} format={{vmname}}%04x
+
+
+
+

@@ -1,0 +1,38 @@
+- name: Create a PowerVC Virtual Machine
+  hosts: tower
+  gather_facts: no
+  vars_files:
+    # User defined variables for infrastructure
+    - vars/osvars.yml
+  tasks:
+  # Gather information about all servers named <web*> that are in an active state:
+  - os_server_info:
+     server: ansible*
+     #server: "{{hostname}}"
+     filters:
+       vm_state: active
+    register: vms
+  - debug:
+      msg: "{{ vms.openstack_servers }} {{ hostname }}"
+  - set_fact:
+      vm_ip: "{{ vms.openstack_servers 
+                | selectattr('name', 'match', hostname   ) 
+                | map(attribute='accessIPv4') 
+                | list 
+                | first 
+                | default('NOT_FOUND') }}"
+  - debug:
+      msg: "The IP address is  {{ vm_ip }}"
+  #- name: Print VM's public IP address
+    #debug:
+       #msg: "{{ vms.openstack_servers[*] }}"
+  #- name: "Display all ports from cluster1 as a string"
+    #debug:
+      #msg: "{{ vms.openstack_servers | json_query('vms.openstack_servers.[?name==`ansible7`].volumes') | join(', ') }}"
+  #- name: test 
+    #debug:
+      #var: item
+    #loop: "{{ vms | json_query(image_query) }}"
+    #vars:
+      #image_query: "vms.openstack_servers[?name=='ansible7'].vm_state"
+#

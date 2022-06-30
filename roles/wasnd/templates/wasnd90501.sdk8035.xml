@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<agent-input>
+  <variables>
+    <variable name='sharedLocation' value='/usr/IBM/IMShared'/>
+  </variables>
+  <server>
+    <repository location='/tmp/wasrepo/was.repo.90501.nd.zip'/>
+    <repository location='/tmp/wasrepo/sdk.repo.8035.java8.aix.zip'/>
+  </server>
+  <profile id='IBM WebSphere Application Server V9.0' installLocation='/usr/IBM/WebSphere/AppServer'>
+    <data key='cic.selector.arch' value='ppc64'/>
+    <data key='cic.selector.ws' value='gtk'/>
+  </profile>
+  <install>
+    <!-- IBM WebSphere Application Server Network Deployment  9.0.5.1 -->
+    <offering profile='IBM WebSphere Application Server V9.0' id='com.ibm.websphere.ND.v90' version='9.0.5001.20190828_0616' features='core.feature,ejbdeploy,thinclient,embeddablecontainer'/>
+    <!-- IBM SDK, Java Technology Edition, Version 8 8.0.5.35 -->
+    <offering profile='IBM WebSphere Application Server V9.0' id='com.ibm.java.jdk.v8' version='8.0.5035.20190422_0948' features='com.ibm.sdk.8'/>
+  </install>
+  <preference name='com.ibm.cic.common.core.preferences.eclipseCache' value='${sharedLocation}'/>
+</agent-input>

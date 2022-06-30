@@ -1,0 +1,107 @@
+- name: Changes /tmp to 6G size
+  aix_filesystem:
+    filesystem: /tmp
+    size: 6G
+    state: present
+- name: Creating staging directory
+  file:
+    path: /tmp/im
+    state: directory
+- name: Changes /opt to 4G size
+  aix_filesystem:
+    filesystem: /opt
+    size: 4G
+    state: present
+- name: increase /usr of 3G
+  aix_filesystem:
+    filesystem: /usr
+    size: +4G
+    state: present
+    #- name: installing gtk2
+    #yum:
+    #name: gtk2
+    #state: latest
+- name: copying IM source files
+  unarchive:
+    src: "{{item}}"
+    dest: /tmp/im
+    #dest: "{{ code_base_dir }}"
+    keep_newer: yes
+  with_items: 
+    - /files/aix/websphere/InstallationManager/1.8.9.4/aix.gtk.ppc_1.8.9004.20190423_2015.zip
+  tags: copyfiles
+- name: installing installation manager
+  shell: /tmp/im/installc -log /tmp/im.lof -acceptLicense
+  tags: installim
+- name: uploading was installation response file
+  template:
+    src: templates/wasnd90501.sdk8035.xml
+    dest: /tmp/wasnd90501.sdk8035.xml 
+  tags: template
+- name: remove file (delete file)
+  file:
+    path: /tmp/im
+    state: absent
+- name: Creating wasrepo directory
+  file:
+    path: "{{was_repo}}"
+    state: directory
+- name: copying binaries to wasrepo
+  copy: 
+    src: "{{item}}" 
+    dest: "{{was_repo}}"
+  loop: 
+    - "{{was_90501_source_dir}}{{was_90501_nd_file}}"
+    - "{{sdk_8035_source_dir}}{{sdk_8035_file}}"
+- name: installing was using Installation manager
+  shell: /opt/IBM/InstallationManager/eclipse/tools/imcl input /tmp/wasnd90501.sdk8035.xml -acceptlicense
+  tags: template
+
+- name: displaying ansible_fqdn
+  debug:
+    msg: "{{ansible_hostname}} {{play_hosts[0] | regex_replace('(.)$' , '') }} {{ansible_fqdn}}"
+  tags: 
+    - debug
+    - wasprofiles 
+
+- name: creating was dmgr profile 
+  shell: "/usr/IBM/WebSphere/AppServer/bin/manageprofiles.sh -create -profileName {{ansible_hostname | trim }}Dmgr01 -nodeName {{ansible_hostname | trim }}Dmgr -templatePath /usr/IBM/WebSphere/AppServer/profileTemplates/management"
+  #shell: "/usr/IBM/WebSphere/AppServer/bin/manageprofiles.sh -create -profileName {{ansible_hostname | trim }}Dmgr01 -nodeName {{ansible_hostname | trim }}Dmgr -templatePath /usr/IBM/WebSphere/AppServer/profileTemplates/dmgr"
+  when:  ansible_fqdn == ( play_hosts[0] | regex_replace('(\\.)$' , '') )
+  #when:  ansible_fqdn == play_hosts[0]
+  tags: 
+    - wasprofiles
+    - dmgr
+
+
+- name: starting DMGR
+  shell: "/usr/IBM/WebSphere/AppServer/profiles/{{ansible_hostname | trim }}Dmgr01/bin/startManager.sh"
+  when:  ansible_fqdn == ( play_hosts[0] | regex_replace('(\\.)$' , '') )
+  tags: 
+    - wasprofiles
+    - dmgr
+
+
+- name: creating was node profile 
+  shell: "/usr/IBM/WebSphere/AppServer/bin/manageprofiles.sh -create -profileName {{ansible_hostname | trim }}Custom01 -nodeName {{ansible_hostname | trim }}Node -templatePath /usr/IBM/WebSphere/AppServer/profileTemplates/managed"
+  #when:  ansible_fqdn != play_hosts[0]
+  tags: wasprofiles
+
+
+- name: Adding Nodes to DMGR
+  shell: "/usr/IBM/WebSphere/AppServer/profiles/{{ansible_hostname | trim }}Custom01/bin/addNode.sh {{play_hosts[0]}}" 
+  throttle: 1
+  tags: 
+    - addNodes
+  
+- name: Remove file (delete file)
+  file:
+    path: "{{was_repo}}"
+    state: absent
+  tags: delete
+
+- name: Displaying websphere Application server you can use to connect
+  debug:
+    msg: "http://{{ ansible_default_ipv4.address }}:9060/ibm/console"
+  when:  ansible_fqdn == ( play_hosts[0] | regex_replace('(\\.)$' , '') )
+

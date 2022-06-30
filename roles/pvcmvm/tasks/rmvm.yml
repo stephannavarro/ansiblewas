@@ -1,0 +1,17 @@
+- name: remove an instance
+  hosts: localhost
+  vars_files:
+    # User defined variables for infrastructure
+    - vars/osvars.yml
+  tasks:
+    - name: remove an instance
+      os_server:
+        name: ansible7
+        state: absent
+        terminate_volume: yes
+    - name: create 40g test volume
+      os_volume:
+        state: absent
+        display_name: "{{ item }}"
+      with_sequence: start=1 end={{disk_list.number}} format={{disk_list.prefix}}%04x
+      #

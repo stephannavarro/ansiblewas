@@ -1,0 +1,24 @@
+- hosts: localhost
+  gather_facts: true
+  vars:
+    ip_adresses: []
+
+    OS_IDENTITY_API_VERSION: 3 
+    OS_COMPUTE_API_VERSION: 2.46
+    OS_NETWORK_API_VERSION: 2.0
+    OS_IMAGE_API_VERSION: 2
+    OS_VOLUME_API_VERSION: 2
+
+  roles:
+    - role: pvcmvm
+      tags : mkvm
+
+- hosts: just_added
+  remote_user: root
+  gather_facts: yes
+  roles:
+    - role: aix
+      tags : aix
+    - role: wasnd
+      tags: wasnd
+

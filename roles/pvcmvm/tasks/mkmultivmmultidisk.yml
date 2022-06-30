@@ -1,0 +1,65 @@
+    - name: creating data volumes block
+      block:
+      - name : creating data volumes
+        os_volume:
+          state: present
+          size: "{{ disksizeGB }}"
+          display_name: "{{newdisk}}"
+        with_sequence: start=1 end={{disk_number}} format={{item}}_%02x
+        loop_control:
+          pause: 3
+          loop_var: newdisk
+        #when: disk_number != 0
+        register: disk
+      when: disk_number is defined and disk_number != 0
+
+    
+    - name: Create a new VM instance
+      os_server:
+        timeout: 900
+        state: present
+        name: "{{item}}"
+        image: "{{ pvc_image_name }}"
+        flavor: "{{ pvc_flavor }}"
+        key_name: tower-ansible-ssh-key-45
+        volumes: "{{disk | json_query('results[*].{id: id}') }}"
+        nics:
+          - net-name: "{{ vlan_name }}"
+            #- net-name: VL354-115-119
+            #meta:
+            #hostname: "{{ vmdesc.vmname }}"
+            #group: ansible-vms
+                #scheduler_hints:
+                #group: de1f4c97-cb99-455e-a6a2-55decb12df20
+      when: disk_number is defined and disk_number > 0
+      register: vm
+
+    - name: set hostip with  VM's public IP address
+      set_fact:
+        hostip: "{{vm.server.public_v4}}"
+    - name: getting fqdn for created vm
+      set_fact:
+        fqdn:  "{{ lookup('dig',  vm.server.public_v4 , 'qtype=PTR') }}"
+    - name: Adding ip address to list
+      set_fact:
+        ip_adresses: "{{ ip_adresses }} + [ '{{ hostip}}' ]"  
+    - name: Add host just_created to just_added group
+      add_host:
+        #name: "{{lookup('dig', '{{vm.openstack.public_v4}}/PTR') }}"
+        #name: "{{fqdn}}"
+        name: "{{vm.server.public_v4}}"
+        #ansible_ssh_host:  "{{vm.server.public_v4}}"
+        #name: "{{vm.openstack.public_v4}}"
+        group: just_added
+        remote_tmp: /tmp/${USER}/ansible
+        ansible_remote_tmp: /tmp/
+
+    #- name: attach volume to host
+      #os_server_volume:
+        #state: present
+        #server: "{{vmdesc.vmname}}"
+        #volume: "{{ item }}"
+      #with_sequence: start=1 end={{vmdesc.number}} format={{vmdesc.prefix}}%04x
+    # Pause for 30 seconds
+    #- pause:
+    #seconds:  30

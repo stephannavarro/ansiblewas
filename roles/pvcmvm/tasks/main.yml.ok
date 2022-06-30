@@ -1,0 +1,49 @@
+    - name: Create an SSH Key Pair
+      os_keypair:
+        state: present
+        name: tower-ansible-ssh-key
+        public_key_file: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+    - name: creating data volumes
+      os_volume:
+        state: present
+        size: "{{ disk_list.sizeGB }}"
+        display_name: "{{ item }}"
+      with_sequence: start=1 end={{disk_list.number}} format={{disk_list.prefix}}%04x
+      loop_control:
+        pause: 3
+    - name: Create a new VM instance
+      os_server:
+        state: present
+        name: "{{ hostname }}"
+        image: "{{ pvc_image_name }}"
+        flavor: "{{ pvc_flavor }}"
+        key_name: tower-ansible-ssh-key
+        nics:
+          - net-name: VL354-115-119
+        meta:
+          hostname: "{{ hostname }}"
+          group: ansible-vms
+      register: vm
+
+    - name: Print VM's public IP address
+      debug:
+        var: vm.openstack.public_v4
+      register : hostip
+
+    - name: Waits for SSH port 22 to open
+      wait_for:
+        host: "{{ vm.openstack.public_v4 }}"
+        port: 22
+    - name: attach volume to host
+      os_server_volume:
+        state: present
+        server: "{{hostname}}"
+        volume: "{{ item }}"
+      with_sequence: start=1 end={{disk_list.number}} format={{disk_list.prefix}}%04x
+    - name: Add host just_created with variable foo=42
+      add_host:
+        name: "{{vm.openstack.public_v4}}"
+        #name: 10.3.54.116
+        group: just_added
+
+

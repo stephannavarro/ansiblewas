@@ -1,0 +1,6 @@
+hostname: ansible7 
+ip_address: 10.3.54.117 
+pvc_image_name: AIX721-7022
+pvc_flavor: medium
+#pvc_image_name: AIX72-Oracle
+disk_list: { number: 3 , sizeGB: 30 , prefix: "{{ hostname }}_" }
