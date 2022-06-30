@@ -1,39 +1,27 @@
-    - name: Create a new VM instance
-      os_server:
-        timeout: 900
-        state: present
-        name: "{{item}}"
-        image: "{{ pvc_image_name }}"
-        flavor: "{{ pvc_flavor }}"
-        key_name: tower-ansible-ssh-key-45
-        nics:
-          - net-name: "{{vlan_name}}"
-          #- net-name: VL354-115-119
-      register: vm
+- name: Create a new VM instance
+  os_server:
+    cloud: id149469e
+    timeout: 900
+    state: present
+    name: "{{item}}"
+    image: "{{ pvc_image_name }}"
+    flavor: "{{ pvc_flavor }}"
+    key_name: tower-ansible-ssh-key-45
+    nics:
+      - net-name: "{{vlan_name}}"
+  register: vm
 
-    - name: set hostip with  VM's public IP address
-      set_fact:
-        hostip: "{{vm.server.public_v4}}"
-    - name: getting fqdn for created vm
-      set_fact:
-        fqdn:  "{{ lookup('dig',  vm.server.public_v4 , 'qtype=PTR') }}"
-    - name: Adding ip address to list
-      set_fact:
-        ip_adresses: "{{ ip_adresses }} + [ '{{ hostip}}' ]"  
-    - name: Add host just_created to just_added group
-      add_host:
-        #name: "{{lookup('dig', '{{vm.openstack.public_v4}}/PTR') }}"
-        name: "{{fqdn}}"
-        #name: "{{vm.openstack.public_v4}}"
-        group: just_added
-        remote_tmp: /tmp/${USER}/ansible
-
-    #- name: attach volume to host
-      #os_server_volume:
-        #state: present
-        #server: "{{vmdesc.vmname}}"
-        #volume: "{{ item }}"
-      #with_sequence: start=1 end={{vmdesc.number}} format={{vmdesc.prefix}}%04x
-    # Pause for 30 seconds
-    #- pause:
-    #seconds:  30
+- name: set hostip with  VM's public IP address
+  set_fact:
+    hostip: "{{vm.server.public_v4}}"
+- name: getting fqdn for created vm
+  set_fact:
+    fqdn:  "{{ lookup('dig',  vm.server.public_v4 , 'qtype=PTR') }}"
+- name: Adding ip address to list
+  set_fact:
+    ip_adresses: "{{ ip_adresses }} + [ '{{ hostip}}' ]"  
+- name: Add host just_created to just_added group
+  add_host:
+    name: "{{fqdn}}"
+    group: just_added
+    remote_tmp: /tmp/${USER}/ansible

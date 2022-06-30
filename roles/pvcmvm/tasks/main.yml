@@ -1,22 +1,6 @@
-#- name: Create an SSH Key Pair
-#os_keypair:
-#state: present
-#name: tower-ansible-ssh-key-45
-#public_key_file: "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
-- name : showing cloud config file
-  debug:
-    msg: "{{config_file}}"
-- stat:
-    path: "{{ config_file }}"
-  register: st
-- include_vars: "{{ config_file }}"
-  when: st.stat.exists and st.stat.isreg
-  #- name: "Print out clouds variable"
-  #debug:
-  #msg: "{{ clouds|default('No clouds found') }}"
 - name: Authenticate to the cloud and retrieve the service catalog
   os_auth:
-    cloud: devstack
+    cloud: id149469e
 
 - name: debug showing vm_instance_number
   debug:

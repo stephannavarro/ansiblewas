@@ -1,0 +1,7 @@
+pvc_flavor: was
+pvc_image_name: AIX721-7022-300GB_1
+vlan_name: VLAN344
+vm_instance_number: 2
+vmname: QA
+was_version: WAS9051_JDK880535
+
