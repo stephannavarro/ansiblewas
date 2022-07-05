@@ -1,9 +1,4 @@
-hostname: SNVM 
-ip_address: 10.3.54.117 
-pvc_image_name: AIX721-7022-100G
-pvc_flavor: oracle
-vlan_name: VL354-115-119
-#vm_instance_number: 2
+pvc_image_name: AIX721_7022_300G_DEMO
+pvc_flavor: was
+vlan_name: VLAN344
 
-#pvc_image_name: AIX72-Oracle
-#disk_list: { number: 3 , sizeGB: 30 , prefix: "{{ hostname }}_" }

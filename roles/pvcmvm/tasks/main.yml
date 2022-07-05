@@ -12,7 +12,7 @@
     cloud: idXXXXX
     state: present
     name: ansible_key_idXXXXX
-    public_key_file:  /home/idXXXXX/.ssh/id_rsa.pub
+    public_key:  "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}" 
 
 - name: one or more VM
   set_fact:
@@ -56,9 +56,9 @@
   wait_for:
     #host: "{{ vm.openstack.public_v4 }}"
     host: "{{ item }}"
-    delay: 5
+    delay: 0
     port: 22
-    sleep: 10
+    sleep: 20
     timeout: 300
   loop:   "{{ ip_adresses |flatten(levels=1) }}"
       #when:  vmname  != '' and ( vm_instance_number is undefined ) 

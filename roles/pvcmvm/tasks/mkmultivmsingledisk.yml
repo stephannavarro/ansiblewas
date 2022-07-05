@@ -1,12 +1,12 @@
 - name: Create a new VM instance
   os_server:
-    cloud: id149469e
+    cloud: "{{cloud_name}}"
     timeout: 900
     state: present
     name: "{{item}}"
     image: "{{ pvc_image_name }}"
     flavor: "{{ pvc_flavor }}"
-    key_name: tower-ansible-ssh-key-45
+    key_name: "{{ key_name }}"
     nics:
       - net-name: "{{vlan_name}}"
   register: vm

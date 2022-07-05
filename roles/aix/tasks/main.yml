@@ -50,3 +50,39 @@
   file:
     path: /tmp/im
     state: directory
+
+- name: setting ntp server
+  template:
+    src: templates/ntp.conf
+    dest: "/etc/ntp.conf"
+    owner: root
+    group: system
+    mode: '0664'
+  tags : xntpd
+- name: checking if xntpd is active
+  shell: lssrc -s xntpd
+  register: lssrc_xntpd
+  tags: xntpd
+- name: setiing facts
+  set_fact:
+    xntpd_status: "{{lssrc_xntpd.stdout_lines[1].split()[2]  }}"
+  tags: xntpd
+- debug:
+    msg: "{{xntpd_status}}"
+  tags: xntpd
+- name: stopping xntpd
+  shell: "stopsrc -s xntpd"
+  tags: xntpd
+  when: xntpd_status != "inoperative"
+- name : what is current date ?
+  shell: "date"
+  tags : xntpd
+- name : Syncing clocks
+  shell: "ntpdate {{ ansible_facts.default_ipv4.gateway }}"
+  tags: xntpd
+  when: iscloud is undefined
+- name : setting xntpd to autostarti
+  shell: "chrctcp -S -a xntpd"
+  tags : xntpd
+  when: iscloud is undefined
+
