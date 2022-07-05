@@ -1,6 +1,6 @@
 - name: Authenticate to the cloud and retrieve the service catalog
   os_auth:
-    cloud: id149469e
+    cloud: "{{cloud_name}}"
 
 - name: debug showing vm_instance_number
   debug:
@@ -9,9 +9,9 @@
 
 - name: adding ssh key to powervc
   os_keypair:
-    cloud: idXXXXX
+    cloud: "{{cloud_name}}"
     state: present
-    name: ansible_key_idXXXXX
+    name: "{{ key_name }}"
     public_key:  "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}" 
 
 - name: one or more VM
@@ -54,25 +54,10 @@
   #
 - name: Waits for SSH port 22 to open
   wait_for:
-    #host: "{{ vm.openstack.public_v4 }}"
     host: "{{ item }}"
     delay: 0
     port: 22
     sleep: 20
     timeout: 300
   loop:   "{{ ip_adresses |flatten(levels=1) }}"
-      #when:  vmname  != '' and ( vm_instance_number is undefined ) 
-    
-  
-  
-      #with_sequence: start=1 end={{vm_instance_number}} format={{vmname}}%04x
-    
-
-      #- { vmname: "{{ item }}" , number: "{{ disknumber }}" ,  sizeGB: "{{ size_GB }}" , prefix: "{{ item }}" }
-      #debug:
-      #msg: "{{item}}"
-      #with_sequence: start=1 end={{vm_instance_number}} format={{vmname}}%04x
-
-
-
 
