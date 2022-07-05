@@ -1,5 +1,5 @@
 pvc_flavor: was
-pvc_image_name: AIX721-7022-300GB_DEMO
+pvc_image_name: AIX721_7022_300G_DEMO
 vlan_name: VLAN344
 vm_instance_number: 2
 vmname: WASND
